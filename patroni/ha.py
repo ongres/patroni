@@ -285,6 +285,7 @@ class Ha(object):
         with self._member_state_lock:
             data: Dict[str, Any] = {
                 'conn_url': self.state_handler.connection_string,
+                'addresses': self.state_handler.multi_connection,
                 'api_url': self.patroni.api.connection_string,
                 'state': self.state_handler.state,
                 'role': self.state_handler.role,
