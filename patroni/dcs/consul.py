@@ -491,6 +491,7 @@ class Consul(AbstractDCS):
         api_parts = api_parts._replace(path='/{0}'.format(role))
         conn_url: str = data['conn_url']
         conn_parts = urlparse(conn_url)
+        conn_wan = data['addresses']
         check = base.Check.http(api_parts.geturl(), self._service_check_interval,
                                 deregister='{0}s'.format(self._client.http.ttl * 10))
         if self._service_check_tls_server_name is not None:
@@ -507,6 +508,12 @@ class Consul(AbstractDCS):
         params = {
             'service_id': '{0}/{1}'.format(self._scope, self._name),
             'address': conn_parts.hostname,
+            'tagged_addresses': {
+                'wan_ipv4' : {
+                    'address' : conn_wan,
+                    'port'    : conn_parts.port
+                }
+            },
             'port': conn_parts.port,
             'check': check,
             'tags': tags,
@@ -529,7 +536,7 @@ class Consul(AbstractDCS):
     def update_service(self, old_data: Dict[str, Any], new_data: Dict[str, Any], force: bool = False) -> Optional[bool]:
         update = False
 
-        for key in ['role', 'api_url', 'conn_url', 'state']:
+        for key in ['role', 'api_url', 'conn_url', 'addresses', 'state']:
             if key not in new_data:
                 logger.warning('Could not register service: not enough params in member data')
                 return

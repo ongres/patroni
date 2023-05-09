@@ -942,6 +942,7 @@ class ConfigHandler(object):
             if self._config.get('use_unix_socket_repl') else tcp_local_address
 
         self._postgresql.connection_string = uri('postgres', netloc, self._postgresql.database)
+        self._postgresql.multi_connection = self._config.get('connect_address_wan')
         self._postgresql.set_connection_kwargs(self.local_connect_kwargs)
 
     def _get_pg_settings(
